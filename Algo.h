@@ -168,7 +168,7 @@ int Algo2(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int K = 1000000) {
             step = min(x[i] - wmin, getMinVectorEl(yTmp - y0));
 
             // Если возможно уменьшить wi
-            if (step != 0) {
+            if (step > 0) {
                 x[i] -= step;
                 vi tmp = A * x - y0;
                 if (getMinVectorEl(tmp) >= 0) {
