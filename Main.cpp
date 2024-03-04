@@ -20,9 +20,8 @@ void readData(string filename, vvi& A, vi& y0) {
     fin.close();
 }
 
-void getReport(string filename, string algoName, vd error) {
+void getReport(string filename, vd error) {
     ofstream fout(filename);
-    fout << algoName << "\n";
     fout << error;
     fout.close();
 }
@@ -34,23 +33,27 @@ void doTest(string testName, int wmin = 0) {
     vi x;
 
     readData(testName + ".txt", A, y0);
+    cout << testName << endl;
 
     for (int j = 1; j <= 3; j++) {
         cout << "Algo" << j << endl;
         switch (j) {
         case 1: {
-            Algo1(A, y0, x, error, wmin);
-            getReport(testName + "_algo" + to_string(j) + ".txt", "Алгоритм " + to_string(j), error);
+            int iter = Algo1(A, y0, x, error, wmin);
+            getReport(testName + "_algo" + to_string(j) + ".txt", error);
+            cout << "Iteration number:" << iter << endl;
             cout << x;
             break; }
         case 2: {
-            Algo2(A, y0, x, error, wmin);
-            getReport(testName + "_algo" + to_string(j) + ".txt", "Алгоритм " + to_string(j), error);
+            int iter = Algo2(A, y0, x, error, wmin);
+            getReport(testName + "_algo" + to_string(j) + ".txt", error);
+            cout << "Iteration number:" << iter << endl;
             cout << x;
             break; }
         case 3: {
-            Algo3(A, y0, x, error, wmin);
-            getReport(testName + "_algo" + to_string(j) + ".txt", "Алгоритм " + to_string(j), error);
+            int iter = Algo3(A, y0, x, error, wmin);
+            getReport(testName + "_algo" + to_string(j) + ".txt", error);
+            cout << "Iteration number:" << iter << endl;
             cout << x;
             break; }
         default:
@@ -58,6 +61,7 @@ void doTest(string testName, int wmin = 0) {
         }
 
     }
+    cout << endl;
 }
 
 int main() {

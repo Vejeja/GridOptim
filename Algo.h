@@ -7,14 +7,17 @@ using namespace std;
 
 double MSE(vi y, vi y0) {
     vi tmp = y - y0;
-    return (1. / y.size()) * (tmp * tmp);
+    double sum = 0;
+    for (auto t : tmp)
+        sum += t * t;
+    return (1. / y.size()) * sum;
 }
 
 vd gradientMSE(vvi AT, vi dy) {
     return (AT * dy) * (2. / dy.size());
 }
 
-int Algo1(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 1000000) {
+int Algo1(vvi A, vi y0, vi& x, vd& error, int xmin = 0, int step = 1, int K = 1000000) {
 
     //---------------Блок обработки ошибок---------------
     if (A.empty() || y0.empty())
@@ -33,7 +36,7 @@ int Algo1(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 10
     if (step <= 0)
         throw std::out_of_range("Wrong step value!");
 
-    if (wmin < 0)
+    if (xmin < 0)
         throw std::out_of_range("Wrong wmin value!");
 
     //---------------Блок вспомогательных переменных---------------
@@ -46,9 +49,9 @@ int Algo1(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 10
     vvi AT = matrixTranspose(A);
 
     //---------------Начальная инициализация w---------------
-    x.resize(A[0].size(), 0);
+    x.resize(A[0].size(), xmin);
     for (int i = 0; i < m; i++) {
-        int max = -1;
+        int max = xmin;
         for (int j = 0; j < n; j++) {
             int tmp = A[j][i] * y0[j];
             if (tmp > max)
@@ -75,7 +78,7 @@ int Algo1(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 10
 
         for (int i = 0; i < m; i++) {
             // Если возможно уменьшить wi
-            if (x[i] - step >= wmin) {
+            if (x[i] - step >= xmin) {
                 x[i] -= step;
                 vi tmp = A * x - y0;
                 if (getMinVectorEl(tmp) >= 0) {
@@ -90,7 +93,6 @@ int Algo1(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 10
 
         //---------------4) Критерий остановки---------------
         if (indW == -1) {
-            //cout << "Number of iteration: " << iter << endl;
             return iter;
         }
 
@@ -99,7 +101,7 @@ int Algo1(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 10
     }
 }
 
-int Algo2(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int K = 1000000) {
+int Algo2(vvi A, vi y0, vi& x, vd& error, int xmin = 0, int K = 1000000) {
 
     //---------------Блок обработки ошибок---------------
     if (A.empty() || y0.empty())
@@ -108,14 +110,14 @@ int Algo2(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int K = 1000000) {
     if (A.size() != y0.size())
         throw std::out_of_range("Wrong vector size!");
 
-    int maAM = getMaxMatrixEl(A), minM = getMinMatrixEl(A);
-    if (maAM < 0 || maAM > 1 || minM < 0 || minM > 1)
+    int maxM = getMaxMatrixEl(A), minM = getMinMatrixEl(A);
+    if (maxM < 0 || maxM > 1 || minM < 0 || minM > 1)
         throw std::out_of_range("Wrong matriA value range!");
 
     if (getMinVectorEl(y0) < 0)
         throw std::out_of_range("Wrong vector value range!");
 
-    if (wmin < 0)
+    if (xmin < 0)
         throw std::out_of_range("Wrong wmin value!");
 
     //---------------Блок вспомогательных переменных---------------
@@ -130,9 +132,9 @@ int Algo2(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int K = 1000000) {
     vvi AT = matrixTranspose(A);
 
     //---------------Начальная инициализация w---------------
-    x.resize(A[0].size(), 0);
+    x.resize(A[0].size(), xmin);
     for (int i = 0; i < m; i++) {
-        int max = -1;
+        int max = xmin;
         for (int j = 0; j < n; j++) {
             int tmp = A[j][i] * y0[j];
             if (tmp > max)
@@ -165,7 +167,7 @@ int Algo2(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int K = 1000000) {
                 if (A[j][i]) yTmp[j] = y[j];
             }
             // 4.2. min (y'-y0)
-            step = min(x[i] - wmin, getMinVectorEl(yTmp - y0));
+            step = min(x[i] - xmin, getMinVectorEl(yTmp - y0));
 
             // Если возможно уменьшить wi
             if (step > 0) {
@@ -183,7 +185,6 @@ int Algo2(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int K = 1000000) {
 
         //---------------5) Критерий остановки---------------
         if (indW == -1) {
-            // cout << "Number of iteration: " << iter << endl;
             return iter;
         }
 
@@ -192,7 +193,7 @@ int Algo2(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int K = 1000000) {
     }
 }
 
-int Algo3(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 1000000) {
+int Algo3(vvi A, vi y0, vi& x, vd& error, int xmin = 0, int step = 1, int K = 1000000) {
 
     //---------------Блок обработки ошибок---------------
     if (A.empty() || y0.empty())
@@ -211,7 +212,7 @@ int Algo3(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 10
     if (step <= 0)
         throw std::out_of_range("Wrong step value!");
 
-    if (wmin < 0)
+    if (xmin < 0)
         throw std::out_of_range("Wrong wmin value!");
 
     //---------------Блок вспомогательных переменных---------------
@@ -222,9 +223,9 @@ int Algo3(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 10
     error.resize(0);
 
     //---------------Начальная инициализация w---------------
-    x.resize(A[0].size(), 0);
+    x.resize(A[0].size(), xmin);
     for (int i = 0; i < m; i++) {
-        int max = -1;
+        int max = xmin;
         for (int j = 0; j < n; j++) {
             int tmp = A[j][i] * y0[j];
             if (tmp > max)
@@ -250,7 +251,7 @@ int Algo3(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 10
 
         for (int i = 0; i < m; i++) {
             // Если возможно уменьшить wi
-            if (x[i] - step >= wmin) {
+            if (x[i] - step >= xmin) {
                 x[i] -= step;
                 vi tmp = A * x - y0;
                 if (getMinVectorEl(tmp) >= 0) {
@@ -265,7 +266,6 @@ int Algo3(vvi A, vi y0, vi& x, vd& error, int wmin = 0, int step = 1, int K = 10
 
         //---------------4) Критерий остановки---------------
         if (indW == -1) {
-            // cout << "Number of iteration: " << iter << endl;
             return iter;
         }
 

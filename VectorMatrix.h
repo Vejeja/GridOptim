@@ -66,7 +66,7 @@ template <typename T>
 std::ostream& operator << (std::ostream& out, vector<T> m) {
     const size_t rows = m.size();
     for (size_t i = 0; i != rows; ++i) 
-        out << m[i] << "\t";
+        out << m[i] << " ";
         out << "\n";
     return out;
 }
